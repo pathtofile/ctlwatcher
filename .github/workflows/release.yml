@@ -58,13 +58,3 @@ jobs:
           asset_path: ./target/release/ctlwatcher
           asset_name: ctlwatcher
           asset_content_type: application/octet-stream
-
-      - name: Upload Manifest
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./sealighter_provider.man
-          asset_name: sealighter_provider.man
-          asset_content_type: application/xml
