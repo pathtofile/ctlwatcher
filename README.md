@@ -30,6 +30,9 @@ docker build -tag certstream-server:latest .
 docker run --rm -ti -p 4000:4000 certstream-server:latest
 ```
 
+Instead of running your own server you could just point ctlwatcher to the official server at `wss://certstream.calidog.io/`,
+but to save CaliDog's bandwith I reccomend you run your own.
+
 ## Create Regexes
 Then create a file containing regexes to match, one per line, e.g.:
 ```
@@ -53,8 +56,11 @@ https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX
 # Where 'regexes.txt' contains list of regexes to match
 ctlwatcher --regex-file regexes.txt
 
+# Use official/managed server
+ctlwatcher --regex-file regexes.txt --url 'wss://certstream.calidog.io'
+
 # Send results to slack
-ctlwatcher --regex-file regexes.txt --slack-url https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX
+ctlwatcher --regex-file regexes.txt --slack-url 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX'
 
 # Help and more details
 ctlwathcer --help
