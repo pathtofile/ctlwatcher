@@ -59,3 +59,11 @@ ctlwatcher --regex-file regexes.txt --slack-url https://hooks.slack.com/services
 # Help and more details
 ctlwathcer --help
 ```
+
+# Example output
+```
+\.com -> www.quincassa.com.mx
+\.com -> sa-sourcing.com
+ftp.*\.azure.com$ -> ftp.sbzuvpxggxcdcos.atlas.cloudapp.azure.com
+git.*staging -> git.git.staging-api.ugolek-lounge.ru
+```
