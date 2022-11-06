@@ -5,7 +5,7 @@ Monitor Certificate Transparency logs for domains matching regexes.
 This project uses [CaliDog's CertStream-Server](https://github.com/CaliDog/certstream-server/issues) to
 subscribe to the public lists of new TLS sertificates being recorded in various [Certificate Transparency Logs](https://certificate.transparency.dev) (CTLs).
 
-New domains are checked against a user-supplies list of regexes, outputting matches and optionally sending the matches to Slack via an [incoming webhook](https://api.slack.com/messaging/webhooks).
+New domains are checked against a user-supplies list of regexes, outputting matches
 
 # Building
 Just run:
@@ -44,13 +44,6 @@ ftp
 Regex matching is using [this library](https://docs.rs/regex/latest/regex), which has an implicit `.*` at the start and end of
 every pattern, if the `$^` anchors are not used.
 
-## (Optional) Create Slack bot
-To send data to slack, create a [Slack Bot](https://api.slack.com/messaging/webhooks), and add it to your server.
-Then copy the unique URL to POST the results to, which looks something like:
-```
-https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX
-```
-
 # Running
 ```bash
 # Where 'regexes.txt' contains list of regexes to match
@@ -58,9 +51,6 @@ ctlwatcher --regex-file regexes.txt
 
 # Use official/managed server
 ctlwatcher --regex-file regexes.txt --url 'wss://certstream.calidog.io'
-
-# Send results to slack
-ctlwatcher --regex-file regexes.txt --slack-url 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX'
 
 # Help and more details
 ctlwathcer --help

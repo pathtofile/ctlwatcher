@@ -1,7 +1,6 @@
 use clap::Parser;
 use futures_util::StreamExt;
 use regex::RegexSet;
-use reqwest::Client;
 use serde_json::{json, Value};
 use std::error::Error;
 use std::fs::File;
@@ -21,40 +20,24 @@ struct Args {
     #[arg(short, long, default_value = "ws://127.0.0.1:4000/")]
     url: String,
 
-    /// Slack URL, to POST data to
-    #[arg(short, long)]
-    slack_url: Option<String>,
-
     /// Debug printing
     #[arg(short, long)]
     debug: bool,
 }
 
-async fn report_matches(
-    matches: &Vec<String>,
-    domain: &str,
-    slack_url: Option<&String>,
-) -> Result<(), Box<dyn Error>> {
+async fn report_matches(matches: &Vec<String>, domain: &str) -> Result<(), Box<dyn Error>> {
     for m in matches {
-        let text = format!("{} -> {}\n", m, domain);
+        let data = json!({
+            "regex": m,
+            "domain": domain
+        });
+        let text = format!("{}\n", data.to_string());
         tokio::io::stdout().write_all(text.as_bytes()).await?
-    }
-
-    // POST to slack
-    if slack_url.is_some() {
-        let data = json!({ "text": format!("{} -> {}", domain, matches.join(", ")) });
-        let client = Client::new();
-        let req = client.post(slack_url.unwrap()).body(data.to_string());
-        req.send().await?;
     }
     Ok(())
 }
 
-async fn check_json(
-    data: &str,
-    set: &RegexSet,
-    slack_url: Option<&String>,
-) -> Result<(), Box<dyn Error>> {
+async fn check_json(data: &str, set: &RegexSet) -> Result<(), Box<dyn Error>> {
     let v: Value = serde_json::from_str(data)?;
 
     let t = v["message_type"].as_str().ok_or("Missing message_type")?;
@@ -75,7 +58,7 @@ async fn check_json(
                 .map(|m| set.patterns()[m].clone())
                 .collect();
             if !matches.is_empty() {
-                report_matches(&matches, domain, slack_url).await?;
+                report_matches(&matches, domain).await?;
             }
         }
     }
@@ -104,10 +87,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         stream
             .for_each(|msg| async {
                 let set = set.clone();
-                let slack_url = args.slack_url.clone();
                 tokio::spawn(async move {
                     if let Ok(data) = msg.and_then(|msg| msg.into_text()) {
-                        if let Err(e) = check_json(&data, &set, slack_url.as_ref()).await {
+                        if let Err(e) = check_json(&data, &set).await {
                             eprintln!("Error! {}", e)
                         }
                     }
