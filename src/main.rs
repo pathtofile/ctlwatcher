@@ -31,7 +31,7 @@ async fn report_matches(matches: &Vec<String>, domain: &str) -> Result<(), Box<d
             "regex": m,
             "domain": domain
         });
-        let text = format!("{}\n", data.to_string());
+        let text = format!("{}\n", data);
         tokio::io::stdout().write_all(text.as_bytes()).await?
     }
     Ok(())
