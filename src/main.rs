@@ -6,7 +6,6 @@ use serde_json::{json, Value};
 use std::error::Error;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::thread::available_parallelism;
 use tokio::io::AsyncWriteExt;
 use tokio_tungstenite::connect_async;
 
@@ -103,15 +102,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
         // Parse certificates concurrently
         stream
-            .for_each_concurrent(available_parallelism().unwrap().get(), |message| async {
-                if let Ok(data) = message.and_then(|m| m.into_text()) {
-                    match check_json(&data, &set, args.slack_url.as_ref()).await {
-                        Ok(_) => {}
-                        Err(e) => {
+            .for_each(|msg| async {
+                let set = set.clone();
+                let slack_url = args.slack_url.clone();
+                tokio::spawn(async move {
+                    if let Ok(data) = msg.and_then(|msg| msg.into_text()) {
+                        if let Err(e) = check_json(&data, &set, slack_url.as_ref()).await {
                             eprintln!("Error! {}", e)
                         }
                     }
-                }
+                });
             })
             .await;
     }
